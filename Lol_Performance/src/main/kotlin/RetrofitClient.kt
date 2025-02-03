@@ -13,7 +13,7 @@ object RetrofitClient {
     }
 
     val client : OkHttpClient = OkHttpClient.Builder().apply {
-        //addInterceptor(interceptor)
+        addInterceptor(interceptor)
     }.build()
 
 

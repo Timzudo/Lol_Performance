@@ -6,7 +6,7 @@ data class FinalPerformanceGrade (
     val overallGrade: Double,
     val championGrade: Double,
     val averageGrade: Double,
-    val isSupport: Boolean,
+    val lane: String,
     val overallGradePercentage: Double,
     val championGradePercentage: Double,
     val averageGradePercentage: Double,
@@ -27,12 +27,37 @@ data class FinalPerformanceGrade (
         return """
             -------------------------
             Champion: $champion
+            Lane: $lane
+            -----------------
+            Average Damage Dealt To Objectives: $averageDamageDealtToObjectives
+            Average Damage Self Mitigated: $averageDamageSelfMitigated
+            Average Deaths: $averageDeaths
+            Average Assists: $averageAssists
+            Average Gold Earned: $averageGoldEarned
+            Average Kills: $averageKills
+            Average Time CCing Others: $averageTimeCCingOthers
+            Average Total Damage Dealt To Champions: $averageTotalDamageDealtToChampions
+            Average Total Heal: $averageTotalHeal
+            Average Total Minions Killed: $averageTotalMinionsKilled
+            Average Vision Score: $averageVisionScore
+            -----------------
+            Overall Sigma Points: $overallGradePercentage
+            Champion Sigma Points: $championGradePercentage
+            Sigma Points: $averageGradePercentage
+            -------------------------
+        """.trimIndent()
+    }
+
+    fun toStringLong(): String {
+        return """
+            -------------------------
+            Champion: $champion
             Final Performance Grade: $averageGrade
             Overall Performance Grade: $overallPerformanceGrade
             Champion Performance Grade: $championPerformanceGrade
             Overall Grade: $overallGrade
             Champion Grade: $championGrade
-            Is Support: $isSupport
+            Lane: $lane
             -----------------
             Average Damage Dealt To Objectives: $averageDamageDealtToObjectives
             Average Damage Self Mitigated: $averageDamageSelfMitigated

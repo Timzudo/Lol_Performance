@@ -10,7 +10,7 @@ import org.example.api.MatchApi.Companion.fetchMatches
 import org.example.persistance.DB
 
 fun main() {
-    val apiKey = "RGAPI-d30d8177-73ce-4032-a865-848608ec8e7d"
+    val apiKey = "RGAPI-88c2d650-ea0b-4494-b2f5-2b0311720cfd"
     val apiService = RetrofitClient.instance
 
     val PUUIDS = listOf(
@@ -36,7 +36,7 @@ fun main() {
 
     allMatches.forEach { matchId ->
         val match = runBlocking { fetchMatch(apiService, matchId, apiKey) }
-        Thread.sleep(1000)
+        Thread.sleep(1200)
         matchCounter++
         if (match != null) {
             if(match.info.gameMode == GameModeType.CLASSIC){
@@ -63,6 +63,8 @@ fun main() {
 
     DB.writeObjectToFile(filteredMatchList)
 
+    DB.createPerformanceDB()
+
 }
 
 class InfoFetcher {
@@ -76,12 +78,12 @@ class InfoFetcher {
             val matches = mutableListOf<String>()
             var start = 0
             val count = 100
-            Thread.sleep(1000)
+            Thread.sleep(1200)
             var matchList = runBlocking { fetchMatches(apiService, puuid, apiKey, count, start) }
             while (matchList?.size!! > 0) {
                 matches.addAll(matchList)
                 start += count
-                Thread.sleep(1000)
+                Thread.sleep(1200)
                 matchList = runBlocking { fetchMatches(apiService, puuid, apiKey, count, start) }
                 println("Match List Size: ${matches.size}")
             }

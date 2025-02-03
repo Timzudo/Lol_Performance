@@ -16,7 +16,9 @@ class PerformanceRunner {
 
         fun runPerformanceAnalysis(match: MatchParticipant): FinalPerformanceGrade{
 
-            val matchParticipations = DB.readObjectFromFile();
+
+            val overallPerformanceInfoList = DB.readOverallPerformanceDB()
+            val championPerformanceInfoList = DB.readChampionPerformanceDB(match.championName)
 
             val performanceInfo = PerformanceInfo(
                 damageDealtToObjectives = match.damageDealtToObjectives.div(match.timePlayed.toDouble()/60),
@@ -32,8 +34,51 @@ class PerformanceRunner {
                 visionScore = match.visionScore.div(match.timePlayed.toDouble()/60)
             )
 
-            val championMatchParticipations = getAllMatchParticipationsFromChampion(match.championName, matchParticipations)
-            val overallMatchParticipations = getAllMatchParticipations(matchParticipations)
+            var lane = "LANE"
+
+            if(isJungle(match)){
+                lane = "JUNGLE"
+            }
+            if (hasSupportItem(match)){
+                lane = "SUPPORT"
+            }
+
+
+
+            val finalPerformance = PerformanceEvaluator.evaluatePerformance(performanceInfo, overallPerformanceInfoList, championPerformanceInfoList, lane)
+
+            finalPerformance.champion = match.championName
+
+            return finalPerformance
+        }
+
+        fun getChampionPerformanceInfoList(matchList:  Map<String, List<MatchParticipant>>, championName: String): List<PerformanceInfo>{
+
+            val championMatchParticipations = getAllMatchParticipationsFromChampion(championName, matchList)
+
+
+            val championPerformanceInfoList = championMatchParticipations.map { match ->
+                PerformanceInfo(
+                    damageDealtToObjectives = calculatePerMinute(match) { it.damageDealtToObjectives },
+                    damageSelfMitigated = calculatePerMinute(match) { it.damageSelfMitigated },
+                    deaths = calculatePerMinute(match) { it.deaths },
+                    assists = calculatePerMinute(match) { it.assists },
+                    goldEarned = calculatePerMinute(match) { it.goldEarned },
+                    kills = calculatePerMinute(match) { it.kills },
+                    timeCCingOthers = calculatePerMinute(match) { it.timeCCingOthers },
+                    totalDamageDealtToChampions = calculatePerMinute(match) { it.totalDamageDealtToChampions },
+                    totalHeal = calculatePerMinute(match) { it.totalHeal },
+                    totalMinionsKilled = calculatePerMinute(match) { it.totalMinionsKilled },
+                    visionScore = calculatePerMinute(match) { it.visionScore }
+                )
+            }
+
+            return championPerformanceInfoList
+        }
+
+        fun getOverallPerformanceInfoList(matchList:  Map<String, List<MatchParticipant>>): List<PerformanceInfo>{
+
+            val overallMatchParticipations = getAllMatchParticipations(matchList)
 
 
             val overallPerformanceInfoList = overallMatchParticipations.map { match ->
@@ -52,34 +97,19 @@ class PerformanceRunner {
                 )
             }
 
-            val championPerformanceInfoList = championMatchParticipations.map { match ->
-                PerformanceInfo(
-                    damageDealtToObjectives = calculatePerMinute(match) { it.damageDealtToObjectives },
-                    damageSelfMitigated = calculatePerMinute(match) { it.damageSelfMitigated },
-                    deaths = calculatePerMinute(match) { it.deaths },
-                    assists = calculatePerMinute(match) { it.assists },
-                    goldEarned = calculatePerMinute(match) { it.goldEarned },
-                    kills = calculatePerMinute(match) { it.kills },
-                    timeCCingOthers = calculatePerMinute(match) { it.timeCCingOthers },
-                    totalDamageDealtToChampions = calculatePerMinute(match) { it.totalDamageDealtToChampions },
-                    totalHeal = calculatePerMinute(match) { it.totalHeal },
-                    totalMinionsKilled = calculatePerMinute(match) { it.totalMinionsKilled },
-                    visionScore = calculatePerMinute(match) { it.visionScore }
-                )
-            }
 
-            val finalPerformance = PerformanceEvaluator.evaluatePerformance(performanceInfo, overallPerformanceInfoList, championPerformanceInfoList, hasSupportItem(match))
-
-            finalPerformance.champion = match.championName
-
-            return finalPerformance
+            return overallPerformanceInfoList
         }
 
         private fun hasSupportItem(match: MatchParticipant): Boolean{
             return match.item0 in supportItemIdSet || match.item1 in supportItemIdSet || match.item2 in supportItemIdSet || match.item3 in supportItemIdSet || match.item4 in supportItemIdSet || match.item5 in supportItemIdSet
         }
 
-        private fun getAllMatchParticipationsFromChampion(championName: String, matches: Map<String, List<MatchParticipant>>): List<MatchParticipant> {
+        private fun isJungle(match: MatchParticipant): Boolean{
+            return match.summoner1Id == 11 || match.summoner2Id == 11
+        }
+
+        fun getAllMatchParticipationsFromChampion(championName: String, matches: Map<String, List<MatchParticipant>>): List<MatchParticipant> {
             val list = mutableListOf<MatchParticipant>()
 
             matches.forEach { (t, u) ->

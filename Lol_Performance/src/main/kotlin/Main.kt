@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture
 
 
 fun main() {
-   val apiKey = "RGAPI-d30d8177-73ce-4032-a865-848608ec8e7d"
+   val apiKey = "RGAPI-88c2d650-ea0b-4494-b2f5-2b0311720cfd"
    val apiService = RetrofitClient.instance
 
 
@@ -46,6 +46,10 @@ fun main() {
 
    if (numberOfGames != null) {
       for (i in 0 until numberOfGames.toInt()){
+          if(i%100 == 99){
+            Thread.sleep(120000)
+              println("Wait a few seconds...")
+          }
          matchList.add(runBlocking {
             matchIDList?.get(i)?.let { MatchApi.fetchMatch(apiService, it, apiKey) }!!
          })

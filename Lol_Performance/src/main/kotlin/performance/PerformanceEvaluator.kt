@@ -10,22 +10,24 @@ class PerformanceEvaluator {
 
     companion object{
         //weights
-        private val damageDealtToObjectivesWeight = 0.3
+        private val damageDealtToObjectivesWeight = 0.2
         private val damageSelfMitigatedWeight = 0.1
         private val deathsWeight = -0.4
         private val assistsWeight = 0.3
         private val killsWeight = 0.3
-        private val timeCCingOthersWeight = 0.2
+        private val timeCCingOthersWeight = 0.05
         private val totalDamageDealtToChampionsWeight = 0.3
         private val totalHealWeight = 0.2
         private val visionScoreWeight = 0.2
 
         //not for support role
-        private val totalMinionsKilledWeight = 0.2
         private val goldEarnedWeight = 0.2
 
+        //not for support nor jungle role
+        private val totalMinionsKilledWeight = 0.05
 
-        fun evaluatePerformance(performanceInfo: PerformanceInfo, overallPerformanceInfo: List<PerformanceInfo>, championPerformanceInfo: List<PerformanceInfo>, isSupport: Boolean): FinalPerformanceGrade {
+
+        fun evaluatePerformance(performanceInfo: PerformanceInfo, overallPerformanceInfo: List<PerformanceInfo>, championPerformanceInfo: List<PerformanceInfo>, lane: String): FinalPerformanceGrade {
             val damageDealtToObjectives = getGrade(performanceInfo.damageDealtToObjectives, overallPerformanceInfo.map { it.damageDealtToObjectives }, championPerformanceInfo.map { it.damageDealtToObjectives })
             val damageSelfMitigated = getGrade(performanceInfo.damageSelfMitigated, overallPerformanceInfo.map { it.damageSelfMitigated }, championPerformanceInfo.map { it.damageSelfMitigated })
             val deaths = getGrade(performanceInfo.deaths, overallPerformanceInfo.map { it.deaths }, championPerformanceInfo.map { it.deaths })
@@ -66,8 +68,8 @@ class PerformanceEvaluator {
                 visionScore.second
             )
 
-            val overallGrade = getFinalGradeValue(overallPerformanceGrade)
-            val championGrade = getFinalGradeValue(championPerformanceGrade)
+            val overallGrade = getFinalGradeValue(overallPerformanceGrade, lane)
+            val championGrade = getFinalGradeValue(championPerformanceGrade, lane)
             val averageGrade = (overallGrade + championGrade) / 2
             val overallGradePercentage = (50+(overallGrade*25)).round(1)
             val championGradePercentage = (50+(championGrade*25)).round(1)
@@ -97,18 +99,46 @@ class PerformanceEvaluator {
             averageTotalMinionsKilled = (50+(averageTotalMinionsKilled*25)).round(1).round(1)
             averageVisionScore = (50+(averageVisionScore*25)).round(1).round(1)
 
-            return FinalPerformanceGrade(overallPerformanceGrade, championPerformanceGrade, overallGrade, championGrade, averageGrade, isSupport, overallGradePercentage, championGradePercentage, averageGradePercentage, "", averageDamageDealtToObjectives, averageDamageSelfMitigated, averageDeaths, averageAssists, averageGoldEarned, averageKills, averageTimeCCingOthers, averageTotalDamageDealtToChampions, averageTotalHeal, averageTotalMinionsKilled, averageVisionScore)
+            return FinalPerformanceGrade(overallPerformanceGrade, championPerformanceGrade, overallGrade, championGrade, averageGrade, lane, overallGradePercentage, championGradePercentage, averageGradePercentage, "", averageDamageDealtToObjectives, averageDamageSelfMitigated, averageDeaths, averageAssists, averageGoldEarned, averageKills, averageTimeCCingOthers, averageTotalDamageDealtToChampions, averageTotalHeal, averageTotalMinionsKilled, averageVisionScore)
 
         }
 
-        private fun getFinalGradeValue(performanceGrade: PerformanceGrade): Double{
+        private fun getFinalGradeValue(performanceGrade: PerformanceGrade, lane: String): Double{
+
+            if (lane == "SUPPORT")
+                return (performanceGrade.damageDealtToObjectives * damageDealtToObjectivesWeight +
+                        performanceGrade.damageSelfMitigated * damageSelfMitigatedWeight +
+                        performanceGrade.deaths * deathsWeight + performanceGrade.assists * assistsWeight + performanceGrade.kills * killsWeight +
+                        performanceGrade.timeCCingOthers * timeCCingOthersWeight + performanceGrade.totalDamageDealtToChampions * totalDamageDealtToChampionsWeight +
+                        performanceGrade.totalHeal * totalHealWeight +
+                        performanceGrade.visionScore * visionScoreWeight)
+                    .div(damageDealtToObjectivesWeight + damageSelfMitigatedWeight +
+                            deathsWeight + assistsWeight + killsWeight + timeCCingOthersWeight
+                            + totalDamageDealtToChampionsWeight + totalHealWeight
+                            + visionScoreWeight)
+
+            if(lane == "JUNGLE")
+                return (performanceGrade.damageDealtToObjectives * damageDealtToObjectivesWeight +
+                        performanceGrade.damageSelfMitigated * damageSelfMitigatedWeight + performanceGrade.goldEarned * goldEarnedWeight +
+                        performanceGrade.deaths * deathsWeight + performanceGrade.assists * assistsWeight + performanceGrade.kills * killsWeight +
+                        performanceGrade.timeCCingOthers * timeCCingOthersWeight + performanceGrade.totalDamageDealtToChampions * totalDamageDealtToChampionsWeight +
+                        performanceGrade.totalHeal * totalHealWeight +
+                        performanceGrade.visionScore * visionScoreWeight)
+                    .div(damageDealtToObjectivesWeight + damageSelfMitigatedWeight +
+                            deathsWeight + assistsWeight + killsWeight + timeCCingOthersWeight
+                            + totalDamageDealtToChampionsWeight + totalHealWeight
+                            + visionScoreWeight + goldEarnedWeight)
+
             return (performanceGrade.damageDealtToObjectives * damageDealtToObjectivesWeight +
                     performanceGrade.damageSelfMitigated * damageSelfMitigatedWeight + performanceGrade.goldEarned * goldEarnedWeight +
                     performanceGrade.deaths * deathsWeight + performanceGrade.assists * assistsWeight + performanceGrade.kills * killsWeight +
                     performanceGrade.timeCCingOthers * timeCCingOthersWeight + performanceGrade.totalDamageDealtToChampions * totalDamageDealtToChampionsWeight +
                     performanceGrade.totalHeal * totalHealWeight + performanceGrade.totalMinionsKilled * totalMinionsKilledWeight +
-                    performanceGrade.visionScore * visionScoreWeight).div(damageDealtToObjectivesWeight + damageSelfMitigatedWeight + deathsWeight + assistsWeight + killsWeight + timeCCingOthersWeight + totalDamageDealtToChampionsWeight + totalHealWeight + totalMinionsKilledWeight + visionScoreWeight + goldEarnedWeight)
-
+                    performanceGrade.visionScore * visionScoreWeight)
+                .div(damageDealtToObjectivesWeight + damageSelfMitigatedWeight +
+                        deathsWeight + assistsWeight + killsWeight + timeCCingOthersWeight
+                        + totalDamageDealtToChampionsWeight + totalHealWeight + totalMinionsKilledWeight
+                        + visionScoreWeight + goldEarnedWeight)
         }
 
         private fun getGrade(value: Double, overall: List<Double>, champion: List<Double>): Pair<Double, Double> {
