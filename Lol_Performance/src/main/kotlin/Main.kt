@@ -65,6 +65,7 @@ fun main() {
          if (participant != null) {
              val performanceGrade = PerformanceRunner.runPerformanceAnalysis(participant)
              gradeSum += performanceGrade.averageGrade
+             performanceGrade.gamemode = match.info.gameMode.toString()
             println(performanceGrade)
          }
     }

@@ -1,5 +1,7 @@
 package org.example.performance.util
 
+import org.example.util.match.round
+
 data class FinalPerformanceGrade (
     val overallPerformanceGrade: PerformanceGrade,
     val championPerformanceGrade: PerformanceGrade,
@@ -21,29 +23,33 @@ data class FinalPerformanceGrade (
     var averageTotalDamageDealtToChampions: Double = 0.0,
     var averageTotalHeal: Double = 0.0,
     var averageTotalMinionsKilled: Double = 0.0,
-    var averageVisionScore: Double = 0.0
+    var averageVisionScore: Double = 0.0,
+    var textGrade: TextGrade = TextGrade.ERROR,
+    var gamemode: String = ""
 ) {
     override fun toString(): String {
         return """
             -------------------------
             Champion: $champion
             Lane: $lane
+            Game Mode: $gamemode
             -----------------
-            Average Damage Dealt To Objectives: $averageDamageDealtToObjectives
-            Average Damage Self Mitigated: $averageDamageSelfMitigated
-            Average Deaths: $averageDeaths
-            Average Assists: $averageAssists
-            Average Gold Earned: $averageGoldEarned
-            Average Kills: $averageKills
-            Average Time CCing Others: $averageTimeCCingOthers
-            Average Total Damage Dealt To Champions: $averageTotalDamageDealtToChampions
-            Average Total Heal: $averageTotalHeal
-            Average Total Minions Killed: $averageTotalMinionsKilled
-            Average Vision Score: $averageVisionScore
+            Kills: $averageKills
+            Assists: $averageAssists
+            Deaths: $averageDeaths
+            Damage To Champions: $averageTotalDamageDealtToChampions
+            Damage To Objectives: $averageDamageDealtToObjectives
+            Self Mitigated Damage: $averageDamageSelfMitigated
+            Gold Earned: $averageGoldEarned
+            Minions Killed: $averageTotalMinionsKilled
+            Time CCing Others: $averageTimeCCingOthers
+            Total Heal: $averageTotalHeal
+            Vision Score: $averageVisionScore
             -----------------
             Overall Sigma Points: $overallGradePercentage
             Champion Sigma Points: $championGradePercentage
-            Sigma Points: $averageGradePercentage
+            Final Sigma Points: $averageGradePercentage
+            Sigma Grade: ${textGrade.description}
             -------------------------
         """.trimIndent()
     }

@@ -3,6 +3,7 @@ package org.example.performance
 import org.example.performance.util.FinalPerformanceGrade
 import org.example.performance.util.PerformanceGrade
 import org.example.performance.util.PerformanceInfo
+import org.example.performance.util.TextGrade
 import org.example.util.match.round
 import kotlin.math.sqrt
 
@@ -17,11 +18,12 @@ class PerformanceEvaluator {
         private val killsWeight = 0.3
         private val timeCCingOthersWeight = 0.05
         private val totalDamageDealtToChampionsWeight = 0.3
-        private val totalHealWeight = 0.2
-        private val visionScoreWeight = 0.2
+        private val totalHealWeight = 0.15
+        private val visionScoreWeight = 0.15
 
         //not for support role
         private val goldEarnedWeight = 0.2
+        private val killsWeightSupport = 0.1
 
         //not for support nor jungle role
         private val totalMinionsKilledWeight = 0.05
@@ -99,7 +101,9 @@ class PerformanceEvaluator {
             averageTotalMinionsKilled = (50+(averageTotalMinionsKilled*25)).round(1).round(1)
             averageVisionScore = (50+(averageVisionScore*25)).round(1).round(1)
 
-            return FinalPerformanceGrade(overallPerformanceGrade, championPerformanceGrade, overallGrade, championGrade, averageGrade, lane, overallGradePercentage, championGradePercentage, averageGradePercentage, "", averageDamageDealtToObjectives, averageDamageSelfMitigated, averageDeaths, averageAssists, averageGoldEarned, averageKills, averageTimeCCingOthers, averageTotalDamageDealtToChampions, averageTotalHeal, averageTotalMinionsKilled, averageVisionScore)
+            val textGrade = TextGrade.fromScore(averageGradePercentage)
+
+            return FinalPerformanceGrade(overallPerformanceGrade, championPerformanceGrade, overallGrade, championGrade, averageGrade, lane, overallGradePercentage, championGradePercentage, averageGradePercentage, "", averageDamageDealtToObjectives, averageDamageSelfMitigated, averageDeaths, averageAssists, averageGoldEarned, averageKills, averageTimeCCingOthers, averageTotalDamageDealtToChampions, averageTotalHeal, averageTotalMinionsKilled, averageVisionScore, textGrade)
 
         }
 
@@ -108,12 +112,12 @@ class PerformanceEvaluator {
             if (lane == "SUPPORT")
                 return (performanceGrade.damageDealtToObjectives * damageDealtToObjectivesWeight +
                         performanceGrade.damageSelfMitigated * damageSelfMitigatedWeight +
-                        performanceGrade.deaths * deathsWeight + performanceGrade.assists * assistsWeight + performanceGrade.kills * killsWeight +
+                        performanceGrade.deaths * deathsWeight + performanceGrade.assists * assistsWeight + performanceGrade.kills * killsWeightSupport +
                         performanceGrade.timeCCingOthers * timeCCingOthersWeight + performanceGrade.totalDamageDealtToChampions * totalDamageDealtToChampionsWeight +
                         performanceGrade.totalHeal * totalHealWeight +
                         performanceGrade.visionScore * visionScoreWeight)
                     .div(damageDealtToObjectivesWeight + damageSelfMitigatedWeight +
-                            deathsWeight + assistsWeight + killsWeight + timeCCingOthersWeight
+                            deathsWeight + assistsWeight + killsWeightSupport + timeCCingOthersWeight
                             + totalDamageDealtToChampionsWeight + totalHealWeight
                             + visionScoreWeight)
 
