@@ -10,6 +10,8 @@ import no.stelar7.api.r4j.pojo.lol.match.v5.LOLMatch
 import no.stelar7.api.r4j.pojo.shared.RiotAccount
 import org.example.api.AccountApi
 import org.example.api.MatchApi
+import org.example.mainRunners.GetLastGameOverview
+import org.example.mainRunners.GetPlayerGamesPerformance
 import org.example.performance.PerformanceEvaluator
 import org.example.performance.PerformanceRunner
 import org.example.util.match.LOLMatchResponse
@@ -23,56 +25,30 @@ import java.util.concurrent.CompletableFuture
 
 
 fun main() {
-   val apiKey = "RGAPI-88c2d650-ea0b-4494-b2f5-2b0311720cfd"
-   val apiService = RetrofitClient.instance
+    val apiKey = "RGAPI-4f2f72ab-e058-48a7-a4e5-14fb23fbfae3"
+    val apiService = RetrofitClient.instance
 
 
-   println("Insert name and tag")
-   val nameAndTag = readlnOrNull()
-   println("Insert number of games")
-   val numberOfGames = readlnOrNull()
+    var running = true
 
-   val values = nameAndTag?.split("#")
+    while(running){
+        println("Choose an option:")
+        println("-----------------")
+        println("1. Get game overview")
+        println("2. Get player games performance")
+        println("3. Exit")
+        println("-----------------")
+        val option = readlnOrNull()
 
-   val account: RiotAccount? = runBlocking {
-      values?.let { AccountApi.fetchPUUID(apiService, it[0], it[1], apiKey) }
-   }
-
-   val matchIDList: List<String>? = runBlocking {
-      account?.let { MatchApi.fetchMatches(apiService, account.puuid, apiKey) }
-   }
-
-   val matchList: MutableList<LOLMatchResponse> = mutableListOf()
-
-   if (numberOfGames != null) {
-      for (i in 0 until numberOfGames.toInt()){
-          if(i%100 == 99){
-            Thread.sleep(120000)
-              println("Wait a few seconds...")
-          }
-         matchList.add(runBlocking {
-            matchIDList?.get(i)?.let { MatchApi.fetchMatch(apiService, it, apiKey) }!!
-         })
-      }
-   }
-
-   var gradeSum = 0.0
-
-    matchList.forEach { match ->
-       //get participant with matching puuid from account variable
-         val participant = match.info.participants?.find { it.puuid == account?.puuid }
-
-         if (participant != null) {
-             val performanceGrade = PerformanceRunner.runPerformanceAnalysis(participant)
-             gradeSum += performanceGrade.averageGrade
-             performanceGrade.gamemode = match.info.gameMode.toString()
-            println(performanceGrade)
-         }
+        when(option){
+            "1" -> GetLastGameOverview().getLastGameOverview(apiKey, apiService)
+            "2" -> GetPlayerGamesPerformance().getPlayerGamesPerformance(apiKey, apiService)
+            "3" -> running = false
+            else -> println("Bro...")
+        }
     }
 
-    val averageGrade = gradeSum / matchList.size
-    val  finalGradePercentage = 50+(averageGrade*25).round(1)
-    println("Average sigma points: $finalGradePercentage")
+
 }
 
 

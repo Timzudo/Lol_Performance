@@ -25,4 +25,13 @@ data class LOLMatchData(
     val queueId: GameQueueType? = null,
     val teams: List<MatchTeam>? = null,
     val tournamentCode: String? = null
-)
+){
+    override fun toString(): String {
+        return """
+            -------------------------
+            Duration: ${gameDuration.div(60)} min
+            Mode: $gameMode
+            -------------------------
+        """.trimIndent()
+    }
+}

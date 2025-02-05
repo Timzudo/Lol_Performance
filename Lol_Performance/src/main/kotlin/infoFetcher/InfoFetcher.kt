@@ -10,7 +10,7 @@ import org.example.api.MatchApi.Companion.fetchMatches
 import org.example.persistance.DB
 
 fun main() {
-    val apiKey = "RGAPI-88c2d650-ea0b-4494-b2f5-2b0311720cfd"
+    val apiKey = "RGAPI-4f2f72ab-e058-48a7-a4e5-14fb23fbfae3"
     val apiService = RetrofitClient.instance
 
     val PUUIDS = listOf(

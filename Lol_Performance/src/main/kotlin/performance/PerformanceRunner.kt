@@ -48,6 +48,7 @@ class PerformanceRunner {
             val finalPerformance = PerformanceEvaluator.evaluatePerformance(performanceInfo, overallPerformanceInfoList, championPerformanceInfoList, lane)
 
             finalPerformance.champion = match.championName
+            finalPerformance.playerName = match.riotIdName + "#" + match.riotIdTagline
             return finalPerformance
         }
 

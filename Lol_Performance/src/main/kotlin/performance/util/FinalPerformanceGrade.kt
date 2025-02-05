@@ -25,11 +25,13 @@ data class FinalPerformanceGrade (
     var averageTotalMinionsKilled: Double = 0.0,
     var averageVisionScore: Double = 0.0,
     var textGrade: TextGrade = TextGrade.ERROR,
-    var gamemode: String = ""
+    var gamemode: String = "",
+    var playerName: String = ""
 ) {
     override fun toString(): String {
         return """
             -------------------------
+            $playerName
             Champion: $champion
             Lane: $lane
             Game Mode: $gamemode
@@ -80,6 +82,19 @@ data class FinalPerformanceGrade (
             Overall Grade Percentage: $overallGradePercentage
             Champion Grade Percentage: $championGradePercentage
             Sigma Points: $averageGradePercentage
+            -------------------------
+        """.trimIndent()
+    }
+
+    fun toStringShort(): String {
+        return """
+            -------------------------
+            $playerName
+            Champion: $champion
+            Lane: $lane
+            -----------------
+            Final Sigma Points: $averageGradePercentage
+            Sigma Grade: ${textGrade.description}
             -------------------------
         """.trimIndent()
     }
